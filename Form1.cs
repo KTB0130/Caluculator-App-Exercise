@@ -14,6 +14,8 @@ namespace Caluculator_App_Exercise
     {
         double first, second, answer;
         string function;
+        Class1 head;
+        Class1 current;
 
         public Calculator()
         {
@@ -23,6 +25,8 @@ namespace Caluculator_App_Exercise
         private void Calculator_Load(object sender, EventArgs e)
         {
             lblOutput.Text = "";
+            head = null;
+            current = head;
         }
 
         private void btn5_Click(object sender, EventArgs e)
@@ -72,89 +76,40 @@ namespace Caluculator_App_Exercise
 
         private void btnPlus_Click(object sender, EventArgs e)
         {
-            if(Double.TryParse(txtInput.Text, out first))
-            {
-                function = " + ";
-                lblOutput.Text = txtInput.Text + function;
-                txtInput.Clear();
-            }
-            else
-            {
-                txtInput.Text = "Error";
-            }
+            AddToList("+");
+            PrintList();
+            txtInput.Text = txtInput.Text + "+";
         }
 
         private void btnMinus_Click(object sender, EventArgs e)
         {
-            if (Double.TryParse(txtInput.Text, out first))
-            {
-                function = " - ";
-                lblOutput.Text = txtInput.Text + function;
-                txtInput.Clear();
-            }
-            else
-            {
-                txtInput.Text = "Error";
-            }
+            AddToList("-");
+            PrintList();
+            txtInput.Text = txtInput.Text + "-";
         }
 
         private void btnMultiply_Click(object sender, EventArgs e)
         {
-            if (Double.TryParse(txtInput.Text, out first))
-            {
-                function = " * ";
-                lblOutput.Text = txtInput.Text + function;
-                txtInput.Clear();
-            }
-            else
-            {
-                txtInput.Text = "Error";
-            }
+            AddToList("*");
+            PrintList();
+            txtInput.Text = txtInput.Text + "*";
         }
 
         private void btnDivide_Click(object sender, EventArgs e)
         {
-            if (Double.TryParse(txtInput.Text, out first))
-            {
-                function = " / ";
-                lblOutput.Text = txtInput.Text + function;
-                txtInput.Clear();
-            }
-            else
-            {
-                txtInput.Text = "Error";
-            }
+            AddToList("/");
+            PrintList();
+            txtInput.Text = txtInput.Text + "/";
         }
 
         private void btnEquals_Click(object sender, EventArgs e)
         {
-            
-            if (Double.TryParse(txtInput.Text, out second))
-            {
-                if (function == " + ")
-                {
-                    answer = first + second;
-                }
-                else if (function == " - ")
-                {
-                    answer = first - second;
-                }
-                else if (function == " * ")
-                {
-                    answer = first * second;
-                }
-                else if (function == " / ")
-                {
-                    answer = first / second;
-                }
-            }
-            else
-            {
-                txtInput.Text = "Error";
-            }
-            lblOutput.Text = lblOutput.Text + second + " = " + answer;
+            AddToList("=");
+            PrintList();
             txtInput.Clear();
-           
+            double answer = Caluculate();
+            txtInput.Text = "" + answer;
+            lblOutput.Text = lblOutput.Text + "=" + answer;
         }
 
         private void btnClear_Click(object sender, EventArgs e)
@@ -168,6 +123,8 @@ namespace Caluculator_App_Exercise
             first = second = answer = 0;
             lblOutput.Text = "";
             function = "";
+            head = null;
+            current = null;
         }
 
         private void btn0_Click(object sender, EventArgs e)
@@ -180,5 +137,190 @@ namespace Caluculator_App_Exercise
             txtInput.Text = txtInput.Text + ".";
         }
 
+        private void AddToList(string s)
+        {
+            if (Double.TryParse(txtInput.Text, out first))
+            {
+                if(head == null)
+                { 
+                    head = new Class1();
+                    current = head;
+                    current.number = first;
+                    current.n = true;
+
+                    current.next = new Class1();
+                    current = current.next;
+                    current.symbol = s;
+                    current.n = false;
+                    current.next = null;
+                }
+                else
+                {
+                    current.next = new Class1();
+                    current = current.next;
+                    current.number = first;
+                    current.n = true;
+
+                    current.next = new Class1();
+                    current = current.next;
+                    current.symbol = s;
+                    current.n = false;
+                    current.next = null;
+                }
+            }
+            else
+            {
+                lblOutput.Text = "Error";
+                txtInput.Clear();
+            }
+
+        }
+
+        private void PrintList()
+        {
+            Class1 print = head;
+            string temp = "";
+            while (print != null)
+            {
+                if (print.n)
+                {
+                    temp = temp + print.number;
+                }
+                else
+                {
+                    temp = temp + print.symbol;
+                }
+                print = print.next;
+            }
+            lblOutput.Text = temp;
+        }
+
+        private double Caluculate()
+        {
+            double a = 0;
+            Multiply();
+            Division();
+            Addition();
+            Subtraction();
+            return a;
+        }
+        private void Multiply()
+        {
+            Class1 m = head;
+            Class1 temp;
+
+            while(m.symbol != "=")
+            {
+                if (m.next.symbol == "*")//exeption thrown 
+                {
+                    double answer = m.number * m.next.next.number;//error
+                    temp = m.next.next.next;
+                    m.next = temp;
+                    answer = m.number;
+                }
+                m = m.next;
+            }
+
+
+        }
+        private void Division()
+        {
+            Class1 m = head;
+            Class1 temp;
+
+            while (m.symbol != "=")
+            {
+                if (m.next.symbol == "/")
+                {
+                    double answer = m.number * m.next.next.number;
+                    temp = m.next.next.next;
+                    m.next = temp;
+                    answer = m.number;
+                }
+
+
+                m = m.next;
+            }
+
+
+        }
+        private void Addition()
+        {
+            Class1 m = head;
+            Class1 temp;
+
+            while (m.symbol != "=")
+            {
+                if (m.next.symbol == "+")
+                {
+                    double answer = m.number * m.next.next.number;//error here when ran
+                    temp = m.next.next.next;
+                    m.next = temp;
+                    answer = m.number;
+                }
+
+
+                m = m.next;
+            }
+
+
+        }
+        private void Subtraction()
+        {
+            Class1 m = head;
+            Class1 temp;
+
+            while (m.symbol != "=")
+            {
+                if (m.next.symbol == "-")
+                {
+                    double answer = m.number * m.next.next.number;
+                    temp = m.next.next.next;
+                    m.next = temp;
+                    answer = m.number;
+                }
+
+
+                m = m.next;
+            }
+        }    
+
+        private void Form1_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            char p = e.KeyChar;
+            if (p == '1' || p == '2' || p == '3' || p == '4' || p == '5' || p == '6' || p == '7' || p == '8' || p == '9' || p == 'e')
+            {
+                Console.WriteLine("Number Pressed:" + p);
+                if(txtInput.Text == "Error")
+                {
+                    txtInput.Clear();
+                }
+                txtInput.Text = txtInput.Text + p;
+            }
+            else if (p == '+' || p == '-' || p == '*' || p == '/')
+            {
+                Console.WriteLine("Symbol Pressed:" + p);
+                string s = "" + p;
+                AddToList(s);
+                PrintList();
+                txtInput.Clear();
+            }
+            else if (e.KeyChar == (char)Keys.Enter)
+            {
+                Console.WriteLine("Enter Pressed:" + p);
+                AddToList("=");
+                PrintList();
+                txtInput.Clear();
+                double answer = Caluculate();
+                txtInput.Text = "" + answer;
+            }
+
+        }
+            
+
+        
+
     }
+
 }
+
